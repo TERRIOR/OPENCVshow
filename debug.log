@@ -1,0 +1,15 @@
+[1015/225122:ERROR:backend_impl.cc(1998)] Corrupt Index file
+[1015/225122:ERROR:cache_util_win.cc(20)] Unable to move the cache: 5
+[1015/225122:ERROR:cache_util.cc(132)] Unable to move cache folder C:\Users\zhuojun\AppData\LocalLow\Baidu\BaiduPlayer\UserData to C:\Users\zhuojun\AppData\LocalLow\Baidu\BaiduPlayer\old_UserData_000
+[1015/225122:ERROR:cache_creator.cc(125)] Unable to create cache
+[1015/225122:ERROR:renderer_main.cc(227)] Running without renderer sandbox
+[1015/225123:ERROR:renderer_main.cc(227)] Running without renderer sandbox
+[1015/225123:INFO:CONSOLE(0)] "Uncaught ReferenceError: bpls_local_storage_state_change is not defined", source:  (0)
+[1015/225123:INFO:CONSOLE(0)] "Uncaught ReferenceError: bpls_local_storage_state_change is not defined", source:  (0)
+[1015/225125:INFO:CONSOLE(0)] "Document was loaded from Application Cache with manifest http://baoku.player.baidu.com/single/leftside_record/app.manifest", source: http://baoku.player.baidu.com/single/leftside_record/ (0)
+[1015/225125:INFO:CONSOLE(0)] "Document was loaded from Application Cache with manifest http://baoku.player.baidu.com/leftcolumn/app.manifest", source: http://baoku.player.baidu.com/leftcolumn/index.html (0)
+[1015/225125:INFO:CONSOLE(0)] "Application Cache Checking event", source: http://baoku.player.baidu.com/single/leftside_record/ (0)
+[1015/225125:INFO:CONSOLE(0)] "Application Cache Checking event", source: http://baoku.player.baidu.com/leftcolumn/index.html (0)
+[1015/225623:INFO:CONSOLE(0)] "Application Cache NoUpdate event", source: http://baoku.player.baidu.com/single/leftside_record/ (0)
+[1015/225624:INFO:CONSOLE(0)] "Application Cache NoUpdate event", source: http://baoku.player.baidu.com/leftcolumn/index.html (0)
+[1016/010135:ERROR:gpu_process_transport_factory.cc(402)] Failed to establish GPU channel.
