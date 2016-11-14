@@ -270,21 +270,23 @@ void opencvdeal::circleinit(){
         //cap1.set(CV_CAP_PROP_FOURCC, 'GPJM');
         cont = 0;
         cout << capture3.get(CV_CAP_PROP_FRAME_WIDTH) << capture3.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-        //cout << boolalpha << cap1.set(CV_CAP_PROP_FRAME_HEIGHT, 240) << endl;
-        //cout << boolalpha << cap1.set(CV_CAP_PROP_FRAME_WIDTH, 320) << endl;
-        //cout << cap1.get(CV_CAP_PROP_FRAME_WIDTH) << cap1.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+        cout << boolalpha << capture3.set(CV_CAP_PROP_FRAME_HEIGHT, 240) << endl;
+        cout << boolalpha << capture3.set(CV_CAP_PROP_FRAME_WIDTH, 320) << endl;
+        cout << capture3.get(CV_CAP_PROP_FRAME_WIDTH) << capture3.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
         while (frame3.rows < 2 && cont<5){
             capture3 >> frame3;
 
             cont++;
         }
     }
-    resize(frame3,frame3,Size(640/cof,480/cof));
+    if(frame3.size().width==640)
+        resize(frame3,frame3,Size(640/cof,480/cof));
 
 }
 void opencvdeal::circlefirst(){
     capture3 >> frame3;
-    resize(frame3,frame3,Size(640/cof,480/cof));
+    if(frame3.size().width==640)
+        resize(frame3,frame3,Size(640/cof,480/cof));
     frame3.copyTo(frameprocess);
     if(startrecognize){
         cvtColor(frame3, gray, CV_RGB2GRAY);
@@ -298,7 +300,7 @@ void opencvdeal::circlefirst(){
         //////////////////////////////////////////////////////
         cout << "Contours: " << contours.size() << "  " << ends;
         const unsigned int cmin = 200/cof;//200
-        const unsigned int cmax = 2000/cof;//2000
+        const unsigned int cmax = 4000/cof;//2000
         vector<vector<Point> >::iterator itc = contours.begin();
         while (itc != contours.end())
         {
@@ -311,7 +313,8 @@ void opencvdeal::circlefirst(){
         }
         cout << "Contours: " << contours.size() << "  " << ends;
         cout << endl;
-        if (contours.size() > 1){
+        //双层 因此大于等于4 时才有两个圈 没有两个圈前不会进入步骤二
+        if (contours.size() >= 4){
             itc = contours.begin();
             int i = 0;
             while (itc != contours.end())
@@ -337,12 +340,13 @@ void opencvdeal::circlefirst(){
             ellisperectmax.center.x = ellisperectmax.center.x - re.x-15/cof;//消除切除后圆心的偏移
             ellisperectmax.center.y = ellisperectmax.center.y - re.y-15/cof;//同上
 
-            c_size_min = contours[2].size();//取出第二大的轮廓 因为是双层 所以取第三个
-            RotatedRect ellispemin = fitEllipse(Mat(contours[2]));
             lastmask=Mat::zeros(frame3.size(), CV_8UC1);
             lastmask2 = Mat::zeros(frame3.size(), CV_8UC1);
             lastmask.setTo(255);
             lastmask2.setTo(255);
+
+            c_size_min = contours[2].size();//取出第二大的轮廓 因为是双层 所以取第三个
+            RotatedRect ellispemin = fitEllipse(Mat(contours[2]));
             int esoffset=100/cof;
             ellipse(lastmask, RotatedRect(ellispemin.center, Size(ellispemin.size.width - esoffset, ellispemin.size.height - esoffset), ellispemin.angle), Scalar(0), -1);
             ellipse(lastmask2, RotatedRect(ellispemin.center, Size(ellispemin.size.width + esoffset, ellispemin.size.height + esoffset), ellispemin.angle), Scalar(0), -1);
@@ -357,7 +361,8 @@ void opencvdeal::circlefirst(){
 void opencvdeal::circlesecond(){
     Mat  mask;
     capture3 >> frame3;
-    resize(frame3,frame3,Size(640/cof,480/cof));//缩小
+    if(frame3.size().width==640)
+        resize(frame3,frame3,Size(640/cof,480/cof));//缩小
     Mat frame4;
     frame4=frame3;
     if (!frame4.empty())
@@ -397,6 +402,7 @@ void opencvdeal::circlesecond(){
             vector<Mat> colorspirt;
             split(move, colorspirt);
             //Mat move2;
+            //此处需更改
             inRange(colorspirt[0], 75, 140, mask);
 
             morphologyEx(mask, mask, MORPH_OPEN, element);

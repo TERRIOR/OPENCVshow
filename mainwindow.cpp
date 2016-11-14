@@ -76,7 +76,10 @@ void MainWindow::processFrameAndUpdateGUI(){
     cvdeal.sethsv(ui->SldHLower->value(),ui->SldHUpper->value(),ui->SldSLower->value(),ui->SldSUpper->value(),ui->SldVLower->value(),ui->SldVUpper->value());
     settemp=ui->SldTemp->value();
     cout<<settemp<<endl;
-    ui->labelsettemp->setText(QString("settemp:")+QString::number(settemp));
+    if(settemp!=70)
+        ui->labelsettemp->setText(QString("settemp:")+QString::number(settemp));
+    else
+        ui->labelsettemp->setText(QString("settemp:not set"));
     QImage qtimg1,qtimg2;
     cvdeal.process();
     //Mat 转 QImage 需要在此处转换 不然报错（不知为何） 因此需要被显示的需要提供接口
@@ -85,12 +88,15 @@ void MainWindow::processFrameAndUpdateGUI(){
     //Serialconnect.send("hello,arduino");
     if(Serialconnect.getisstarted()){
         String str=Serialconnect.receive();
-        ui->Sldreceive->appendPlainText(QString::fromStdString(str));
-        switch (str[0]){
-            case 't':
-            nowtemp=atoi(str.substr(1).c_str());
-            ui->labelnowtemp->setText(QString("nowtemp:")+QString::number(nowtemp) );
-            break;
+        if(str!="")
+            ui->Sldreceive->appendPlainText(QString::fromStdString(str));
+        if(str.length()>1&&str.length()<4){
+            switch (str[0]){
+                case 't':
+                nowtemp=atoi(str.substr(1).c_str());
+                ui->labelnowtemp->setText(QString("nowtemp:")+QString::number(nowtemp) );
+                break;
+            }
         }
     }
     if(cvdeal.getmode()==1){
@@ -100,6 +106,10 @@ void MainWindow::processFrameAndUpdateGUI(){
         if(recognizestart){
             int ratio=cvdeal.getratio();
             cout<<ratio<<"%"<<endl;
+            ui->labelpowder->setText(QString("POWDER:")+QString::number(ratio)+QString("%"));
+            //pi*R^2*h/3 h=R*sqrt(3)  so v=pi*sqrt(3)/3*R^3
+            int v=ratio*ratio*ratio*3.14*sqrt(3)/24000;// 3.14*(ratio/100*100/2)*(ratio/100*100/2)*sqrt(3)*(ratio/100*100/2)/3
+            ui->labelv->setText(QString("V:")+QString::number(v));
             if(Serialconnect.getisstarted())
                 Serialconnect.send("p"+ratio);
         }
@@ -126,8 +136,11 @@ void MainWindow::processFrameAndUpdateGUI(){
             Serialconnect.send(s);
         ui->label3dtext->setText(tr(s.data()));
     }
-    ui->lblOriginal->setPixmap(QPixmap::fromImage(qtimg1).scaled(qtimg1.width(),qtimg1.height()));
-    ui->lblProcessed->setPixmap(QPixmap::fromImage(qtimg2).scaled(qtimg2.width(),qtimg2.height()));
+    if(cvdeal.getmode()==1||cvdeal.getmode()==2){
+        ui->lblOriginal->setPixmap(QPixmap::fromImage(qtimg1).scaled(qtimg1.width(),qtimg1.height()));
+        ui->lblProcessed->setPixmap(QPixmap::fromImage(qtimg2).scaled(qtimg2.width(),qtimg2.height()));
+    }
+
 }
 MainWindow::~MainWindow()
 {
