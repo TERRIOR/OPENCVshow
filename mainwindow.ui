@@ -109,7 +109,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>781</width>
+      <width>791</width>
       <height>271</height>
      </rect>
     </property>
@@ -153,7 +153,7 @@
       <widget class="QPlainTextEdit" name="Sldreceive">
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>150</width>
          <height>240</height>
         </size>
        </property>
@@ -377,7 +377,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -421,7 +421,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>

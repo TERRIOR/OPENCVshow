@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
         string com=*iterator;
         ui->com->addItem(tr(com.data()));
     }
+    Opoint[0]=0;
+    Opoint[1]=0;
+    Opoint[2]=0;
 }
 void MainWindow::processFrameAndUpdateGUI(){
 
@@ -90,12 +93,27 @@ void MainWindow::processFrameAndUpdateGUI(){
         String str=Serialconnect.receive();
         if(str!="")
             ui->Sldreceive->appendPlainText(QString::fromStdString(str));
-        if(str.length()>1&&str.length()<4){
+        if(str.length()>0&&str.length()<4){
             switch (str[0]){
-                case 't':
+            case 't':
                 nowtemp=atoi(str.substr(1).c_str());
                 ui->labelnowtemp->setText(QString("nowtemp:")+QString::number(nowtemp) );
-                break;
+            break;
+            case 'o':
+                Opoint[0]=point[0];
+                Opoint[1]=point[1];
+                Opoint[2]=point[2];
+                stereosend=true;
+            break;
+            case 'n':
+                pointsend=false;
+            break;
+            case 's':
+                pointsend=true;
+            break;
+            case 'c':
+                stereosend=false;
+            break;
             }
         }
     }
@@ -117,24 +135,86 @@ void MainWindow::processFrameAndUpdateGUI(){
     if(cvdeal.getmode()==2){
         qtimg1=Mat2QImage(cvdeal.getimgl1());
         qtimg2=Mat2QImage(cvdeal.getimgr1());
-        int *point;
         point=cvdeal.getpoint();
-        string x,y,z;
+        string sx,sy,sz,sspeed,sdis;
         string s;
         stringstream ss;//把int 转string型
-        ss<<point[0];
-        ss>>x;
+        float x=point[0]-Opoint[0];
+        float z=point[1]-Opoint[1];
+        float y=point[2]-Opoint[2];
+        static float lastx,lasty,lastz;
+        static float lastdis,lasttwodis,lastspeed;
+        static float total_dis,total_twodis;
+        static int discount,twodiscount;
+        float dis;
+        float twopointdis;
+        float speed;
+        ss<<(int)x;
+        ss>>sx;
         ss.clear();
-        ss<<point[1];
-        ss>>y;
+        ss<<(int)y;
+        ss>>sy;
         ss.clear();
-        ss<<point[2];
-        ss>>z;
+        ss<<(int)z;
+        ss>>sz;
         //cout<<"x:"<<x<<"y:"<<y<<"z:"<<z<<endl;
-        s="x"+x+"y"+y+"h"+z;
-        if(Serialconnect.getisstarted())
-            Serialconnect.send(s);
+        s="x"+sx+"y"+sy+"h"+sz;
+        if(stereosend){
+            add(sqrt(x*x+y*y),10,&lastdis,&discount,&total_dis);
+            add(sqrt((x-lastx)*(x-lastx)+(y-lasty)*(y-lasty)),3,&lasttwodis,&twodiscount,&total_twodis);
+            static int count=0;
+            count++;
+            if(count==10){//一秒钟更新一次 计数十次
+                dis=total_dis/count;
+                twopointdis=total_twodis/count;
+                speed=twopointdis*1000/dis/(6.28);//twopointdis/dis=10ms角度 1s角度=*10 除/2pi得出比例 再乘100 方便传输
+                total_twodis=0;
+                total_dis=0;
+                ss.clear();
+                ss<<(int)speed;
+                ss>>sspeed;
+                ss.clear();
+                ss<<(int)dis;
+                ss>>sdis;
+                count=0;
+                cout<<"r:"<<sdis<<" speed:"<<(int)speed<<" h:"<<sz<<" td:"<<(int)twopointdis<<endl;
+            }
+        }
+        if(Serialconnect.getisstarted()&&pointsend&&stereosend){
+            //Serialconnect.send(s);
+            //cout<<s<<endl;
+            static int count=0;
+            count++;
+            switch (count){
+            case 4:
+                if(lastdis!=dis){
+                    Serialconnect.send("r"+sdis);
+                    lastdis=dis;
+                    //cout<<sdis<<endl;
+                }
+                break;
+            case 8:
+                if(abs(speed-lastspeed)>5&&speed<100){
+                    Serialconnect.send("s"+sspeed);
+                    lastspeed=speed;
+                    //cout<<sspeed<<endl;
+                }
+                break;
+            case 12:
+                if(z!=lastz){
+                    Serialconnect.send("h"+sz);
+                    //cout<<sz<<endl;
+                }
+                count=0;
+                break;
+            default:
+                break;
+            }
+        }
         ui->label3dtext->setText(tr(s.data()));
+        lastx=x;
+        lasty=y;
+        lastz=z;
     }
     if(cvdeal.getmode()==1||cvdeal.getmode()==2){
         ui->lblOriginal->setPixmap(QPixmap::fromImage(qtimg1).scaled(qtimg1.width(),qtimg1.height()));
@@ -157,6 +237,20 @@ void MainWindow::on_startButton_clicked(){
     }
 
 
+}
+void MainWindow::add(float m,int error,float *lastm,int *count,float *q){//n是上一次数据
+    if(abs(m-*lastm)>error){
+        //*q+=*lastm;
+        *count++;
+        if(*count>=3){
+            *lastm=m;
+            *count=0;
+        }
+    } else{
+        *lastm=m;
+        *count=0;
+    }
+    *q+=*lastm;
 }
 void MainWindow::on_cancelButton_clicked()
 {

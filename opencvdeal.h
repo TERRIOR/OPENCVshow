@@ -40,7 +40,7 @@ public:
     Mat getframe3();
     Mat getimgl1();
     Mat getimgr1();
-    int* getpoint();
+    float* getpoint();
     int ImgStrong(Mat &img, Mat &result);
     int getarea(Mat &img);
     int otsu(cv::Mat&dst);
@@ -71,7 +71,7 @@ private:
     Mat lastmask, lastmask2;//范围mask
     vector<vector<Point> > contours;//检测轮廓时都会用到的，两个阶段都用到，但没有联系
     vector<Vec4i> hierarchy;
-    bool count = true;
+
     RotatedRect ellisperectmax;
     bool startrecognize=false;
     //////////////////////////////////////*双目定位*/////////////////////////////////////////////
@@ -90,7 +90,7 @@ private:
     Mat templ;
     Point pointl,pointr;
     int match_method;
-    int tdpoint[3];
+    float tdpoint[3];
     Mat imgl1,imgr1;
     const double cx=4.4472863578796387e+002;
     const double cy=1.9008141326904297e+002;

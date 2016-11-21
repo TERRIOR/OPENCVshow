@@ -42,7 +42,7 @@ void serialconnect::start(string com){
     isstarted=true;
     my_serialport.setPortName(MainWindow::tr(com.data()));
     my_serialport.open(QIODevice::ReadWrite);
-    my_serialport.setBaudRate(9600);
+    my_serialport.setBaudRate(115200);
     my_serialport.setDataBits(QSerialPort::Data8);
     my_serialport.setParity(QSerialPort::NoParity);
     my_serialport.setStopBits(QSerialPort::OneStop);

@@ -19,6 +19,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QImage Mat2QImage(Mat image1);
+    void add(float m,int error,float *lastm,int *count,float *q);
 public slots:
     void processFrameAndUpdateGUI();
 private slots:
@@ -36,6 +37,10 @@ private:
     bool serialopened=false;
     bool recognizestart=false;
     int settemp,nowtemp;
+    float Opoint[3];
+    float *point;
+    bool pointsend;
+    bool stereosend;
 };
 
 #endif // MAINWINDOW_H

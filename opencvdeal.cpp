@@ -140,7 +140,6 @@ void opencvdeal::stereosecond(){
     inRange(frame,Scalar(hl,sl,vl),Scalar(hu,su,vu),maskl);
     inRange(frame1,Scalar(hl,sl,vl),Scalar(hu,su,vu),maskr);
     //cout<<hl<<hu<<sl<<su<<vl<<vu<<endl;
-
     //Mat mask1,mask2;
     //mask1=Mat::zeros(frame.size(), CV_8UC1);
     //rectangle(mask1,roi1,Scalar(255,255,255),-1,8,0);
@@ -203,7 +202,7 @@ void opencvdeal::stereosecond(){
         tdpoint[2]=Z;
         //tdpoint.rows=Y;
         //tdpoint.depth=Z;
-        cout<<"X:"<<X<<"Y:"<<Y<<"Z:"<<Z<<endl;
+        //cout<<"X:"<<X<<"Y:"<<Y<<"Z:"<<Z<<endl;
 
     }
 
@@ -263,7 +262,7 @@ void opencvdeal::circleinit(){
     int cont = 0;
     cout<<"opencvdealinit()"<<endl;
     while (frame3.rows < 2){
-        capture3.open("4.avi");//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
+        capture3.open(1);//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
         //cap1.set(CV_CAP_PROP_FPS, 10); //desired  FPS
         //cout<<cap1.get(CV_CAP_PROP_FPS)<<endl;
         //fps=cap1.get(CV_CAP_PROP_FPS);
@@ -360,6 +359,7 @@ void opencvdeal::circlefirst(){
 }
 void opencvdeal::circlesecond(){
     Mat  mask;
+    static bool count = true;
     capture3 >> frame3;
     if(frame3.size().width==640)
         resize(frame3,frame3,Size(640/cof,480/cof));//缩小
@@ -388,23 +388,18 @@ void opencvdeal::circlesecond(){
             //bg_model(frame4, mask, true ? 0.005 : 0);// 0.005背景更新速度  选择
             Vibe_Bgs.testAndUpdate(gray);
             mask = Vibe_Bgs.getMask();
-
             Mat element = getStructuringElement(MORPH_ELLIPSE, Size(5,5));
             morphologyEx(mask, mask, MORPH_CLOSE, element);//闭运算 让运动区域变大
             //imshow("move", mask);
-
             Mat move;
             frame4.copyTo(move,mask);
-
             GaussianBlur(move, move, Size(5, 5), 0, 0);
             cvtColor(move, move, CV_BGR2HSV);
-
             vector<Mat> colorspirt;
             split(move, colorspirt);
             //Mat move2;
-            //此处需更改
+            //此处需更改 现在是检测蓝色
             inRange(colorspirt[0], 75, 140, mask);
-
             morphologyEx(mask, mask, MORPH_OPEN, element);
             int mask_area = countNonZero(mask);//这里的mask需要改成只有注水杆区域（目前还包括粉层的扩散）
             //mask_area=getarea(mask);
@@ -413,11 +408,8 @@ void opencvdeal::circlesecond(){
             {
                 frame4.copyTo(f1);
                 cout << "f1update"<< endl;
-                //imshow("f1", f1);
             }
-
             //imshow("mask", mask);
-
             //gray(Scalar(255));
             gray.setTo(255);
             Mat frame_gs;
@@ -436,7 +428,6 @@ void opencvdeal::circlesecond(){
             f1.copyTo(gray, mask);
             mask = 255 - mask;//mask取反 此时mask为没运动区域
             frame4.copyTo(gray, mask);
-
             cvtColor(gray,gray, CV_RGB2GRAY);
             GaussianBlur(gray, gray, Size(21/cof/2*2+1, 21/cof/2*2+1), 0, 0);
             //element = getStructuringElement(MORPH_ELLIPSE, Size(20, 20));
@@ -504,7 +495,6 @@ void opencvdeal::circlesecond(){
                     itc++;
                     i++;
                 }
-
                 RotatedRect rrect = fitEllipse(Mat(contours[j]));
                 cout << "height:" << rrect.size.height << "width:" << rrect.size.width << "area:"<<rrect.size.area()<<endl;
                 if (abs(rrect.center.x - ellisperectmax.center.x)<c_rectr&&abs(rrect.center.y - ellisperectmax.center.y)<c_rectr
@@ -518,7 +508,7 @@ void opencvdeal::circlesecond(){
                     lastmask2.setTo(255);
                     //以这次检测出的圆去限制（补全&去除）下一个圆   范围：-10~20（待调整）
                     int roffset=10/cof;
-                    ellipse(lastmask2, RotatedRect(rrect.center, Size(rrect.size.width +2*roffset, rrect.size.height +2*roffset), rrect.angle), Scalar(0), -1);
+                    ellipse(lastmask2, RotatedRect(rrect.center, Size(rrect.size.width +roffset, rrect.size.height +roffset), rrect.angle), Scalar(0), -1);
                     ellipse(lastmask, RotatedRect(rrect.center, Size(rrect.size.width -roffset, rrect.size.height - roffset), rrect.angle), Scalar(0), -1);
                     Rect re = boundingRect(Mat(contours[j]));//roi感兴趣区域，其他去除
                     //int a = otsu(gray);
@@ -587,7 +577,7 @@ Mat opencvdeal::getimgl1(){
 Mat opencvdeal::getimgr1(){
     return imgr1;
 }
-int* opencvdeal::getpoint(){
+float* opencvdeal::getpoint(){
     return tdpoint;
 }
 Mat opencvdeal::getframe3(){
