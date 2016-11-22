@@ -16,13 +16,13 @@ bool serialconnect::init(){
 
 bool serialconnect::send(string senddata){
     //requestData.append(tr(senddata.data()));
-    serialPrintf(fd,senddata);
+    serialPrintf(fd,senddata.c_str());
     return true;
 }
 
 string serialconnect::receive(){
     string data;
-    while(serialDataAvail()>0){
+    while(serialDataAvail(fd)>0){
             comdata+=char(serialGetchar(fd));
     }
     if(comdata.length()>0)
@@ -37,7 +37,7 @@ void serialconnect::start(){
     fd = serialOpen("/dev/ttyACM0",9600);
 }
 void serialconnect::end(){
-    my_serialport.close();
+    //my_serialport.close();
 }
 bool serialconnect::getisstarted(){
     return isstarted;

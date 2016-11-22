@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QTimer>
 #include "opencvdeal.h"
-#include "serialconnect.h"
+#include "piserialconnect.h"
 
 namespace Ui {
 class MainWindow;

@@ -372,9 +372,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QComboBox" name="com"/>
-     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="layoutWidget">

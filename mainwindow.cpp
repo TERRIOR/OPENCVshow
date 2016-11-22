@@ -45,13 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->SldVUpper->setSliderPosition(255);
     //tmrTimer->start(1000/cvdeal.getfps());
     //获得串口数目与名字
-    vector<string> comstring=Serialconnect.init();
-    vector<string>::iterator iterator=comstring.begin();
-    ui->com->addItem(tr("none"));
-    for(;iterator!=comstring.end();iterator++){
-        string com=*iterator;
-        ui->com->addItem(tr(com.data()));
-    }
+
     Opoint[0]=0;
     Opoint[1]=0;
     Opoint[2]=0;
@@ -78,7 +72,7 @@ void MainWindow::processFrameAndUpdateGUI(){
                                      QString(")"));
     cvdeal.sethsv(ui->SldHLower->value(),ui->SldHUpper->value(),ui->SldSLower->value(),ui->SldSUpper->value(),ui->SldVLower->value(),ui->SldVUpper->value());
     settemp=ui->SldTemp->value();
-    cout<<settemp<<endl;
+    //cout<<settemp<<endl;
     if(settemp!=70)
         ui->labelsettemp->setText(QString("settemp:")+QString::number(settemp));
     else
@@ -100,10 +94,12 @@ void MainWindow::processFrameAndUpdateGUI(){
                 ui->labelnowtemp->setText(QString("nowtemp:")+QString::number(nowtemp) );
             break;
             case 'o':
+                cout<<"oooo"<<endl;
+                stereosend=true;
                 Opoint[0]=point[0];
                 Opoint[1]=point[1];
                 Opoint[2]=point[2];
-                stereosend=true;
+
             break;
             case 'n':
                 pointsend=false;
@@ -160,8 +156,10 @@ void MainWindow::processFrameAndUpdateGUI(){
         //cout<<"x:"<<x<<"y:"<<y<<"z:"<<z<<endl;
         s="x"+sx+"y"+sy+"h"+sz;
         if(stereosend){
-            add(sqrt(x*x+y*y),10,&lastdis,&discount,&total_dis);
-            add(sqrt((x-lastx)*(x-lastx)+(y-lasty)*(y-lasty)),3,&lasttwodis,&twodiscount,&total_twodis);
+            total_dis+=sqrt(x*x+y*y);
+            total_twodis+=sqrt((x-lastx)*(x-lastx)+(y-lasty)*(y-lasty));
+            //add(sqrt(x*x+y*y),10,&lastdis,&discount,&total_dis);
+            //add(sqrt((x-lastx)*(x-lastx)+(y-lasty)*(y-lasty)),3,&lasttwodis,&twodiscount,&total_twodis);
             static int count=0;
             count++;
             if(count==10){//一秒钟更新一次 计数十次
@@ -180,7 +178,7 @@ void MainWindow::processFrameAndUpdateGUI(){
                 cout<<"r:"<<sdis<<" speed:"<<(int)speed<<" h:"<<sz<<" td:"<<(int)twopointdis<<endl;
             }
         }
-        if(Serialconnect.getisstarted()&&pointsend&&stereosend){
+        /*if(Serialconnect.getisstarted()&&pointsend&&stereosend){
             //Serialconnect.send(s);
             //cout<<s<<endl;
             static int count=0;
@@ -210,7 +208,7 @@ void MainWindow::processFrameAndUpdateGUI(){
             default:
                 break;
             }
-        }
+        }*/
         ui->label3dtext->setText(tr(s.data()));
         lastx=x;
         lasty=y;
@@ -264,9 +262,8 @@ void MainWindow::on_cancelButton_clicked()
             Serialconnect.end();
     }
     else{
-        if(ui->com->currentText().toStdString()!="none"){
-            Serialconnect.start(ui->com->currentText().toStdString());
-        }
+        if(Serialconnect.init())
+            Serialconnect.start();
         tmrTimer->start(100);
         ui->cancelButton->setText("pause stream");
     }

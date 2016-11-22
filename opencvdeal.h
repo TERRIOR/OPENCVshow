@@ -8,7 +8,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <QImage>
 #include <iostream>
-#include "vibe.h"
+#include "Vibe.h"
 #include <sstream>
 using namespace cv;
 using namespace std;
