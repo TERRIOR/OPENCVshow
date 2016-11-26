@@ -454,7 +454,7 @@
           </font>
          </property>
          <property name="text">
-          <string>检测萃取模式</string>
+          <string>extraction</string>
          </property>
         </widget>
        </item>
@@ -473,7 +473,7 @@
           </font>
          </property>
          <property name="text">
-          <string>双目检测模式</string>
+          <string>stereo</string>
          </property>
         </widget>
        </item>
@@ -534,7 +534,7 @@
         </font>
        </property>
        <property name="text">
-        <string>3Dpoint：</string>
+        <string>3Dpoint:</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>

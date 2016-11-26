@@ -10,8 +10,10 @@ serialconnect::~serialconnect(){
 
 }
 bool serialconnect::init(){
-   if(wiringPiSetup() < 0)return false;
-   else return true;
+   if(wiringPiSetupSys() < 0)return false;
+   else {
+       return true;
+   }
 }
 
 bool serialconnect::send(string senddata){
@@ -35,6 +37,10 @@ string serialconnect::receive(){
 }
 void serialconnect::start(){
     fd = serialOpen("/dev/ttyACM0",9600);
+    if(fd>0){
+        isstarted=true;
+        cout<<"opened the serial"<<endl;
+    } else cout<<"unopened"<<endl;
 }
 void serialconnect::end(){
     //my_serialport.close();

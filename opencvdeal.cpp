@@ -262,7 +262,7 @@ void opencvdeal::circleinit(){
     int cont = 0;
     cout<<"opencvdealinit()"<<endl;
     while (frame3.rows < 2){
-        capture3.open(1);//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
+        capture3.open("4.avi");//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
         //cap1.set(CV_CAP_PROP_FPS, 10); //desired  FPS
         //cout<<cap1.get(CV_CAP_PROP_FPS)<<endl;
         //fps=cap1.get(CV_CAP_PROP_FPS);
