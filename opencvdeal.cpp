@@ -659,57 +659,7 @@ int opencvdeal::getarea(Mat &img){
     return count;
 }
 ////////////////////////////////灰度直方图增强对比度///////////////////////////////////////////////////
-int opencvdeal::ImgStrong(Mat &img, Mat &result)
-{
-    //***************
-    //p[]各个灰度级出现的概率
-    //p1[]各个灰度级之前的概率和
-    //各个灰度级出现的次数
-    //*****************
-    assert((img.cols == result.cols) && (img.rows == result.rows));
-    double p[256], p1[256], num[256];
-    int nheight = img.rows;
-    int nwidth = img.cols;
-    int total = nheight*nwidth;
-    memset(p, 0, sizeof(p));
-    memset(p1, 0, sizeof(p1));
-    memset(num, 0, sizeof(num));
-    //各个灰度级出现的次数
-    for (int i = 0; i < nheight; i++)
-    {
-        uchar *data = img.ptr<uchar>(i);
-        for (int j = 0; j < nwidth; j++)
-        {
-            num[data[j]]++;
-        }
-    }
 
-    //各个灰度级出现的概率
-    for (int i = 0; i < 256; i++)
-    {
-        p[i] = num[i] / total;
-    }
-    //各个灰度级之前的概率和
-    for (int i = 0; i < 256; i++)
-    {
-        for (int j = 0; j <= i; j++)
-        {
-            p1[i] += p[j];
-        }
-    }
-
-    //直方图变换
-    for (int i = 0; i < nheight; i++)
-    {
-        uchar *data = img.ptr<uchar>(i);
-        uchar *data0 = result.ptr<uchar>(i);
-        for (int j = 0; j < nwidth; j++)
-        {
-            data0[j] = p1[data[j]] * 255 + 0.5;
-        }
-    }
-    return 0;
-}
 
 ////////////////////////////otsu法阈值确定///////////////////////////////////////////
 int opencvdeal::otsu(cv::Mat&dst){

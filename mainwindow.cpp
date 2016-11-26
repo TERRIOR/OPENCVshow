@@ -124,8 +124,12 @@ void MainWindow::processFrameAndUpdateGUI(){
             //pi*R^2*h/3 h=R*sqrt(3)  so v=pi*sqrt(3)/3*R^3
             int v=ratio*ratio*ratio*3.14*sqrt(3)/24000;// 3.14*(ratio/100*100/2)*(ratio/100*100/2)*sqrt(3)*(ratio/100*100/2)/3
             ui->labelv->setText(QString("V:")+QString::number(v));
+            string r;
+            stringstream ss;//把int 转string型
+            ss<<(int)ratio;
+            ss>>r;
             if(Serialconnect.getisstarted())
-                Serialconnect.send("p"+ratio);
+                Serialconnect.send("p"+r);
         }
     }
     if(cvdeal.getmode()==2){
@@ -230,8 +234,8 @@ void MainWindow::on_startButton_clicked(){
         recognizestart=true;
         cvdeal.setstartrecognize(recognizestart);
     }else if (cvdeal.getmode()==2){
-        if(Serialconnect.getisstarted())
-            Serialconnect.send("t"+settemp);
+        //if(Serialconnect.getisstarted())
+            //Serialconnect.send("t"+settemp);
     }
 
 
