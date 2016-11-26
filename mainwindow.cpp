@@ -125,11 +125,15 @@ void MainWindow::processFrameAndUpdateGUI(){
             int ratio=cvdeal.getratio();
             cout<<ratio<<"%"<<endl;
             ui->labelpowder->setText(QString("POWDER:")+QString::number(ratio)+QString("%"));
-            //pi*R^2*h/3 h=R*sqrt(3)  so v=pi*sqrt(3)/3*R^3
+            //pi*R^2*h/3 h=R*sqrt(3)  so v=pi*sqrt(3)/3*R^3、
+            string r;
+            stringstream ss;//把int 转string型
+            ss<<(int)ratio;
+            ss>>r;
             int v=ratio*ratio*ratio*3.14*sqrt(3)/24000;// 3.14*(ratio/100*100/2)*(ratio/100*100/2)*sqrt(3)*(ratio/100*100/2)/3
             ui->labelv->setText(QString("V:")+QString::number(v));
             if(Serialconnect.getisstarted())
-                Serialconnect.send("p"+ratio);
+                Serialconnect.send("p"+r);
         }
     }
     if(cvdeal.getmode()==2){

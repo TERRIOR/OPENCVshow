@@ -274,7 +274,6 @@ void opencvdeal::circleinit(){
         cout << capture3.get(CV_CAP_PROP_FRAME_WIDTH) << capture3.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
         while (frame3.rows < 2 && cont<5){
             capture3 >> frame3;
-
             cont++;
         }
     }
@@ -298,7 +297,7 @@ void opencvdeal::circlefirst(){
         findContours(gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
         //////////////////////////////////////////////////////
         cout << "Contours: " << contours.size() << "  " << ends;
-        const unsigned int cmin = 200/cof;//200
+        const unsigned int cmin = 100/cof;//200
         const unsigned int cmax = 4000/cof;//2000
         vector<vector<Point> >::iterator itc = contours.begin();
         while (itc != contours.end())
