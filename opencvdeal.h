@@ -14,6 +14,8 @@ using namespace cv;
 using namespace std;
 #define MAX_GRAY_VALUE 256
 #define MIN_GRAY_VALUE 0
+int myCal_Hist(Mat Gray_img,MatND hist);
+void myShow_Histogram(MatND &hist,int scale);
 class opencvdeal
 {
 public:
@@ -40,6 +42,10 @@ public:
     Mat getframe3();
     Mat getimgl1();
     Mat getimgr1();
+    int getbeanh();
+    int getbeans();
+    int getbeanv();
+    int getbeanp();
     float* getpoint();
     int ImgStrong(Mat &img, Mat &result);
     int getarea(Mat &img);
@@ -97,6 +103,10 @@ private:
     const double f=1.3545912000000001e+003;
     const double Tx=3.9682650000000002e+001;
     const int cof=2;
+    int beanh;
+    int beans;
+    int beanv;
+    int beanp;
 };
 
 #endif // OPENCVDEAL_H
