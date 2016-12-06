@@ -36,7 +36,7 @@ string serialconnect::receive(){
     return data;
 }
 void serialconnect::start(){
-    fd = serialOpen("/dev/ttyACM0",9600);
+    fd = serialOpen("/dev/ttyUSB0",9600);
     if(fd>0){
         isstarted=true;
         cout<<"opened the serial"<<endl;

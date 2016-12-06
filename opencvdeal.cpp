@@ -51,7 +51,7 @@ void opencvdeal::stereoinit(){
     match_method=0;
     cout<<"opencvdealinit()"<<endl;
     while (frame.rows < 2){
-        capture.open(1);//左边
+        capture.open(2);//左边
         cont = 0;
         cout << capture.get(CV_CAP_PROP_FRAME_WIDTH) << capture.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
         capture.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
@@ -63,7 +63,7 @@ void opencvdeal::stereoinit(){
         }
     }
     while (frame1.rows < 2){
-        capture1.open(0);//右边
+        capture1.open(1);//右边
         cont = 0;
         cout << capture1.get(CV_CAP_PROP_FRAME_WIDTH) << capture1.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
         capture1.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
@@ -262,7 +262,7 @@ void opencvdeal::circleinit(){
     int cont = 0;
     cout<<"opencvdealinit()"<<endl;
     while (frame3.rows < 2){
-        capture3.open("4.avi");//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
+        capture3.open(0);//E:/QTPROJECT/OPENCVshow/4.avi 注意这里路径的写法，如果是只写文件名 需要放在相应release/degub 的根目录
         //cap1.set(CV_CAP_PROP_FPS, 10); //desired  FPS
         //cout<<cap1.get(CV_CAP_PROP_FPS)<<endl;
         //fps=cap1.get(CV_CAP_PROP_FPS);
@@ -274,7 +274,6 @@ void opencvdeal::circleinit(){
         cout << capture3.get(CV_CAP_PROP_FRAME_WIDTH) << capture3.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
         while (frame3.rows < 2 && cont<5){
             capture3 >> frame3;
-
             cont++;
         }
     }
@@ -298,7 +297,7 @@ void opencvdeal::circlefirst(){
         findContours(gray, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
         //////////////////////////////////////////////////////
         cout << "Contours: " << contours.size() << "  " << ends;
-        const unsigned int cmin = 200/cof;//200
+        const unsigned int cmin = 100/cof;//200
         const unsigned int cmax = 4000/cof;//2000
         vector<vector<Point> >::iterator itc = contours.begin();
         while (itc != contours.end())
@@ -349,13 +348,78 @@ void opencvdeal::circlefirst(){
             int esoffset=100/cof;
             ellipse(lastmask, RotatedRect(ellispemin.center, Size(ellispemin.size.width - esoffset, ellispemin.size.height - esoffset), ellispemin.angle), Scalar(0), -1);
             ellipse(lastmask2, RotatedRect(ellispemin.center, Size(ellispemin.size.width + esoffset, ellispemin.size.height + esoffset), ellispemin.angle), Scalar(0), -1);
+            Mat hongbeidumask=Mat::zeros(lastmask.size(),CV_8UC1);
+            ellipse(hongbeidumask, ellispemin, Scalar(255), -1);
+            //hongbeidumask= hongbeidumask(Rect(re.x , re.y , re.size().width , re.size().height));
+            Mat hongbeidu;
+            frame3.copyTo(hongbeidu,hongbeidumask);
+            Rect re2;
+            re2=boundingRect(contours[2]);
+            hongbeidu= hongbeidu(re2);
 
+            MatND hist2;
+            vector<Mat> channel;
+            cvtColor(hongbeidu,hongbeidu,CV_BGR2HSV);
+            split(hongbeidu,channel);
+            //imshow("hongbeidu",channel[2]);
+            //cvtColor(hongbeidu,hongbeidu,CV_RGB2GRAY);  //转换成灰度图
+            beanv=myCal_Hist(channel[2],hist2);
+            beans=myCal_Hist(channel[1],hist2);
+            beanh=myCal_Hist(channel[0],hist2);
+            cout<<"h:"<<beanh<<"s:"<<beans<<"v:"<<beanv<<endl;
+            sr=(ellispemin.size.height+ellispemin.size.width)/2;
+            int powderv=sr*100/br;
+            beanp=powderv*powderv*powderv*3.14*sqrt(3)/24000;
+            cout<<beanp<<endl;
             lastmask = lastmask(Rect(re.x + rectoffset, re.y + rectoffset, re.size().width - 2*rectoffset, re.size().height - 2*rectoffset));
             lastmask2 = lastmask2(Rect(re.x + rectoffset, re.y + rectoffset, re.size().width - 2*rectoffset, re.size().height - 2*rectoffset));
             m_circle_state=2;
         }
     }
 
+}
+int  myCal_Hist(Mat Gray_img,MatND hist){
+
+    int bins = 256;
+    int hist_size[] = {bins};
+    float range[] = { 0, 256 };
+    const float* ranges[] = { range};
+
+    int channels[] = {0};
+    //计算直方图
+    calcHist( &Gray_img, 1, channels, Mat(), // do not use mask
+        hist, 1, hist_size, ranges,
+        true, // the histogram is uniform
+        false );
+
+    //绘制直方图图像
+    int hist_height=256;
+    //int bins = 256;
+    double max_val;  //直方图的最大值
+    int scale = 2;   //直方图的宽度
+    //minMaxLoc(hist, 0, &max_val, 0, 0); //计算直方图最大值
+    //Mat hist_img = Mat::zeros(hist_height,bins*scale, CV_8UC3); //创建一个直方图图像并初始化为0
+    //在直方图图像中写入直方图数据
+    int maxi;
+    int maxval;
+    for(int i=0;i<bins;i++)
+    {
+        float bin_val = hist.at<float>(i); // 第i灰度级上的数
+        //cout<<bin_val<<endl;
+        if(maxval<bin_val&&bin_val<1000){
+            maxval=bin_val;
+            maxi=i;
+        }
+        /*int intensity = cvRound(bin_val*hist_height/max_val);  //要绘制的高度
+        //填充第i灰度级的数据
+        rectangle(hist_img,Point(i*scale,hist_height-1),
+            Point((i+1)*scale - 1, hist_height - intensity),
+            CV_RGB(255,255,255));
+        */
+    }
+    cout<<"maxi:"<<maxi<<" maxval:"<<maxval<<endl;
+    //imshow( "Gray Histogram2", hist_img );
+     return maxi;
 }
 void opencvdeal::circlesecond(){
     Mat  mask;
@@ -567,6 +631,18 @@ void opencvdeal::saveimg(){
     }
 
 }
+int opencvdeal::getbeanh(){
+    return beanh;
+}
+int opencvdeal::getbeans(){
+    return beans;
+}
+int opencvdeal::getbeanv(){
+    return beanv;
+}
+int opencvdeal::getbeanp(){
+    return beanp;
+}
 int opencvdeal::getratio(){
     return sr*100/br;//扩大了100倍控制最终结果在两位小数
 }
@@ -659,7 +735,57 @@ int opencvdeal::getarea(Mat &img){
     return count;
 }
 ////////////////////////////////灰度直方图增强对比度///////////////////////////////////////////////////
+int opencvdeal::ImgStrong(Mat &img, Mat &result)
+{
+    //***************
+    //p[]各个灰度级出现的概率
+    //p1[]各个灰度级之前的概率和
+    //各个灰度级出现的次数
+    //*****************
+    assert((img.cols == result.cols) && (img.rows == result.rows));
+    double p[256], p1[256], num[256];
+    int nheight = img.rows;
+    int nwidth = img.cols;
+    int total = nheight*nwidth;
+    memset(p, 0, sizeof(p));
+    memset(p1, 0, sizeof(p1));
+    memset(num, 0, sizeof(num));
+    //各个灰度级出现的次数
+    for (int i = 0; i < nheight; i++)
+    {
+        uchar *data = img.ptr<uchar>(i);
+        for (int j = 0; j < nwidth; j++)
+        {
+            num[data[j]]++;
+        }
+    }
 
+    //各个灰度级出现的概率
+    for (int i = 0; i < 256; i++)
+    {
+        p[i] = num[i] / total;
+    }
+    //各个灰度级之前的概率和
+    for (int i = 0; i < 256; i++)
+    {
+        for (int j = 0; j <= i; j++)
+        {
+            p1[i] += p[j];
+        }
+    }
+
+    //直方图变换
+    for (int i = 0; i < nheight; i++)
+    {
+        uchar *data = img.ptr<uchar>(i);
+        uchar *data0 = result.ptr<uchar>(i);
+        for (int j = 0; j < nwidth; j++)
+        {
+            data0[j] = p1[data[j]] * 255 + 0.5;
+        }
+    }
+    return 0;
+}
 
 ////////////////////////////otsu法阈值确定///////////////////////////////////////////
 int opencvdeal::otsu(cv::Mat&dst){

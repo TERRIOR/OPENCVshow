@@ -125,11 +125,48 @@ void MainWindow::processFrameAndUpdateGUI(){
             int v=ratio*ratio*ratio*3.14*sqrt(3)/24000;// 3.14*(ratio/100*100/2)*(ratio/100*100/2)*sqrt(3)*(ratio/100*100/2)/3
             ui->labelv->setText(QString("V:")+QString::number(v));
             string r;
+            string sH,sS,sV,sP;
             stringstream ss;//把int 转string型
             ss<<(int)ratio;
             ss>>r;
-            if(Serialconnect.getisstarted())
-                Serialconnect.send("p"+r);
+            ss.clear();
+            ss<<cvdeal.getbeanh();
+            ss>>sH;
+            ss.clear();
+            ss<<cvdeal.getbeans();
+            ss>>sS;
+            ss.clear();
+            ss<<cvdeal.getbeanv();
+            ss>>sV;
+            ss.clear();
+            ss<<cvdeal.getbeanp();
+            ss>>sP;
+            ss.clear();
+            cout<<sH<<","<<sS<<","<<sV<<","<<sP<<endl;
+            if(Serialconnect.getisstarted()){
+             static int count=0;
+             if(count<5)
+                 count++;
+                 switch (count) {
+                 case 1:
+                     Serialconnect.send("a"+sH);
+                     break;
+                 case 2:
+                     Serialconnect.send("b"+sS);
+                     break;
+                 case 3:
+                     Serialconnect.send("c"+sV);
+                     break;
+                 case 4:
+                     Serialconnect.send("d"+sP);
+                     break;
+                 case 5:
+                     Serialconnect.send("p"+r);
+                     break;
+                 default:
+                     break;
+                 }
+            }
         }
     }
     if(cvdeal.getmode()==2){
